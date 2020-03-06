@@ -7,7 +7,7 @@ $sqlPath = "sqlserver:\sql\$($env:COMPUTERNAME)"
 $storageAccount = "<storageAccountName>"  
 $blobContainer = "<blobContainerName>"  
 $backupUrlContainer = "https://<blobURI>/$blobContainer/"  
-$credentialName = "<BackupCred>"   # get from createBackupCred.ps1.
+$credentialName = "<BackupCred>"   # get it from createBackupCred.ps1.
 
 Write-Host "Backup database: " $backupUrlContainer
   

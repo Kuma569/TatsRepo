@@ -1,4 +1,4 @@
-- name: Powershell sqldatabase backup for MS-SQL HA dev
+- name: Powershell for MS-SQL database backup
   hosts: "<Group Name in the Ansible host>"
   gather_facts: false
 
