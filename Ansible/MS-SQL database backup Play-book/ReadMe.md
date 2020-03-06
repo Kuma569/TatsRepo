@@ -73,35 +73,35 @@ Login to the Windows machine and launch up MS SQL Server Management Studio.
 
 On the MS-SQL HA server hosts, Run the script below:  
 
-    ```PowerShell
-    #==========
-    #Create cred:
-    #==========
-    # load the sqlps module
-    import-module sqlps 
-    
-    #set parameters
-    $sqlPath = "sqlserver:\sql\$($env:COMPUTERNAME)"
-    $storageAccount = "<storage_account_name>" 
-    $storageKey = "<storage_account_key>" 
-    $secureString = ConvertTo-SecureString $storageKey -AsPlainText -Force 
-    $credentialName = "BackupCredential-$(Get-Random)"
-    
-    Write-Host "Generate credential: " $credentialName
-    
-    #cd to sql server and get instances 
-    cd $sqlPath
-    $instances = Get-ChildItem
-    
-    #loop through instances and create a SQL credential, output any errors
-    foreach ($instance in $instances) {
-    try {
-        $path = "$($sqlPath)\$($instance.DisplayName)\credentials"
-         New-SqlCredential -Name $credentialName -Identity $storageAccount -Secret $secureString -Path $path -ea Stop | Out-Null
-         Write-Host "...generated credential $($path)\$($credentialName)." }
-    catch { Write-Host $_.Exception.Message } }
-    
-    ```
+```PowerShell
+#==========
+#Create cred:
+#==========
+# load the sqlps module
+import-module sqlps 
+
+#set parameters
+$sqlPath = "sqlserver:\sql\$($env:COMPUTERNAME)"
+$storageAccount = "<storage_account_name>" 
+$storageKey = "<storage_account_key>" 
+$secureString = ConvertTo-SecureString $storageKey -AsPlainText -Force 
+$credentialName = "BackupCredential-$(Get-Random)"
+
+Write-Host "Generate credential: " $credentialName
+
+#cd to sql server and get instances 
+cd $sqlPath
+$instances = Get-ChildItem
+
+#loop through instances and create a SQL credential, output any errors
+foreach ($instance in $instances) {
+try {
+   $path = "$($sqlPath)\$($instance.DisplayName)\credentials"
+     New-SqlCredential -Name $credentialName -Identity $storageAccount -Secret $secureString -Path $path -ea Stop | Out-Null
+     Write-Host "...generated credential $($path)\$($credentialName)." }
+catch { Write-Host $_.Exception.Message } }
+
+```
 This script will generate an sql backup credential, and keep that **"BackupCredential-xxxx"** value somewhere safe.  
 
 #### 2. Setup sql database backup script
@@ -110,38 +110,38 @@ On the MS-SQL HA server hosts, Run the script below:
 
 databaseBackup.ps1:
 
-    ```PowerShell
-    
-    #==========
-    #Run backup
-    #==========
-    import-module sqlps
-    
-    $sqlPath = "sqlserver:\sql\$($env:COMPUTERNAME)"
-    $storageAccount = "<your storage accout name>" 
-    $blobContainer = "<your container name>" 
-    $backupUrlContainer = "https://<primary endpoint URL>/$blobContainer/" 
-    $credentialName = "BackupCredential-<backup cred number>"
-    
-    Write-Host "Backup database: " $backupUrlContainer
-    
-    cd $sqlPath
-    $instances = Get-ChildItem
-    
-    #loop through instances and backup all databases (excluding tempdb and model)
-    foreach ($instance in $instances) {
-    $path = "$($sqlPath)\$($instance.DisplayName)\databases"
-    $databases = Get-ChildItem -Force -Path $path | Where-object {$_.name -ne "tempdb" -and $_.name -ne "model"}
-    
-    foreach ($database in $databases) {
-        try {
-            $databasePath = "$($path)\$($database.Name)"
-            Write-Host "...starting backup: " $databasePath
-            Backup-SqlDatabase -Database $database.Name -Path $path -BackupContainer $backupUrlContainer -SqlCredential $credentialName -Compression On
-            Write-Host "...backup complete." }
-        catch { Write-Host $_.Exception.Message } } }
-    
-    ```
+```PowerShell
+
+#==========
+#Run backup
+#==========
+import-module sqlps
+
+$sqlPath = "sqlserver:\sql\$($env:COMPUTERNAME)"
+$storageAccount = "<your storage accout name>" 
+$blobContainer = "<your container name>" 
+$backupUrlContainer = "https://<primary endpoint URL>/$blobContainer/" 
+$credentialName = "BackupCredential-<backup cred number>"
+
+Write-Host "Backup database: " $backupUrlContainer
+
+cd $sqlPath
+$instances = Get-ChildItem
+
+#loop through instances and backup all databases (excluding tempdb and model)
+foreach ($instance in $instances) {
+$path = "$($sqlPath)\$($instance.DisplayName)\databases"
+$databases = Get-ChildItem -Force -Path $path | Where-object {$_.name -ne "tempdb" -and $_.name -ne "model"}
+
+foreach ($database in $databases) {
+    try {
+        $databasePath = "$($path)\$($database.Name)"
+        Write-Host "...starting backup: " $databasePath
+        Backup-SqlDatabase -Database $database.Name -Path $path -BackupContainer $backupUrlContainer -SqlCredential $credentialName -Compression On
+        Write-Host "...backup complete." }
+    catch { Write-Host $_.Exception.Message } } }
+
+```
 This script will backup all databases except "tempdb" and "model" databsaes.  
 **After running the backup script, check if all sql databases have been saved to your blob storage in the Azure Stack Hub.**
 
