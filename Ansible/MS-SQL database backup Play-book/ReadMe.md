@@ -73,7 +73,7 @@ Login to the Windows machine and launch up MS SQL Server Management Studio.
 
 On the MS-SQL HA server hosts, Run the script below:  
 
-    ```powershell
+    ```PowerShell
     #==========
     #Create cred:
     #==========
@@ -101,7 +101,7 @@ On the MS-SQL HA server hosts, Run the script below:
          Write-Host "...generated credential $($path)\$($credentialName)." }
     catch { Write-Host $_.Exception.Message } }
     
-    ```  
+    ```
 This script will generate an sql backup credential, and keep that **"BackupCredential-xxxx"** value somewhere safe.  
 
 #### 2. Setup sql database backup script
@@ -110,7 +110,7 @@ On the MS-SQL HA server hosts, Run the script below:
 
 databaseBackup.ps1:
 
-    ```powershell
+    ```PowerShell
     
     #==========
     #Run backup
