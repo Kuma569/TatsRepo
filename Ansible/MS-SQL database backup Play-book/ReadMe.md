@@ -31,50 +31,50 @@ In this ReadMe article, option B is described.
     
 ## Solution summary
 We will run though these steps below:  
-1. Create a blob storage in Azure Stack Hub.
-2. Add Ansible service account to MS-SQL server as sysadmin.
-3. Setup an SQL credential and PowerSell SQLHA database backup script.
-4. Setup Ansible hosts and a yml playbook for SQL HA database backup.  
+    1. Create a blob storage in Azure Stack Hub.
+    2. Add Ansible service account to MS-SQL server as sysadmin.
+    3. Setup an SQL credential and PowerSell SQLHA database backup script.
+    4. Setup Ansible hosts and a yml playbook for SQL HA database backup.  
   
 
     
 ### 1. Create a blob storage account in Azure Stack Hub  
-1 Create a storage account  
-- Login to the Azure Stack Hub's user portal, and click **"+ Create a resource"** icon and select **"Storage account - blob, file, table, queue"**.  
-- Fill up the necessary information and click **Create** to create an account. 
-  
-2 Create a blob container  
-- Navigate to **Storage accouts > "storage_account_name" > Blob**, and click **"+ Container"**.  
-- Fill up the information and click OK to create. 
-  
-3 Take a note of storage account access key  
-- Navigate to **Storage accounts > "storage_account_name" > Access keys**, and get your storage accout's **Key**.  
-  Note: Store the key somewhere safe.
+    1. Create a storage account  
+      - Login to the Azure Stack Hub's user portal, and click **"+ Create a resource"** icon and select **"Storage account - blob, file, table, queue"**.  
+      - Fill up the necessary information and click **Create** to create an account.  
+      
+    2. Create a blob container  
+    - Navigate to **Storage accouts > "storage_account_name" > Blob**, and click **"+ Container"**.  
+    - Fill up the information and click OK to create. 
+      
+    3. Take a note of storage account access key  
+      - Navigate to **Storage accounts > "storage_account_name" > Access keys**, and get your storage accout's **Key**.  
+        Note: Store the key somewhere safe.
+    
+    4. Take a note of Primary blob service endpoint  
+      - Navigate to **Storage accounts > "storage_account_name" > Properties** , and get your storage accout's endpoint.  
 
-4 Take a note of Primary blob service endpoint  
-- Navigate to **Storage accounts > "storage_account_name" > Properties** , and get your storage accout's endpoint.  
 
-  
 
 ### 2. Add Ansible service account to MS-SQL server as sysadmin
 Login to the Windows machine and launch up MS SQL Server Management Studio:  
-1 Navigate to**Security > Logins**, right click and **New login**.  
-
-2 In the **General** tab, Enter the service account name that had been created in the previous step as a **Login name**.  
-   
-3 Set **sysadmin** in the **Server Roles** tab.  
- 
-4 Check **Connect SQL for sa** is Granted in the **Securables** tab.
-
-5 Click OK to close, and log off from MSSMS.  
+    1. Navigate to**Security > Logins**, right click and **New login**.  
+    
+    2. In the **General** tab, Enter the service account name that had been created in the previous step as a **Login name**.  
+       
+    3. Set **sysadmin** in the **Server Roles** tab.  
+     
+    4. Check **Connect SQL for sa** is Granted in the **Securables** tab.
+    
+    5. Click OK to close, and log off from MSSMS.  
 
 [Note]  
-- If you don't like to give an sa permission to the ansible user, modify the permission as required. (This particular user should be visible to the all databases under this SQL host server as it will search and backup them all. )  
+  - If you don't like to give an sa permission to the ansible user, modify the permission as required. (This particular user should be visible to the all databases under this SQL host server as it will search and backup them all. )  
   
-  
-  
+
+
 ### 3. Setup an SQL credential and PowerSell SQLHA database backup script  
-1 Create a credential 
+1. Create a credential 
 On the MS-SQL HA server hosts, Run the script below:  
 
 ```powershell
@@ -110,7 +110,7 @@ This script will generate an sql backup credential, and keep that **"BackupCrede
 
 
 
-2 Setup sql database backup script
+2. Setup sql database backup script
 On the MS-SQL HA server hosts, Run the script below:
 
 databaseBackup.ps1:
@@ -153,7 +153,7 @@ This script will backup all databases except "tempdb" and "model" databsaes.
 
 
 ### 4. Setup Ansible hosts and a yml playbook for MS-SQL HA database backup
-1 On your Ansible server, Edit an Ansible hosts inventory file for your MS SQL HA servers.  
+1. On your Ansible server, Edit an Ansible hosts inventory file for your MS SQL HA servers.  
   
 ```bash
 
@@ -186,7 +186,7 @@ ansible_winrm_server_cert_validation=ignore
 -For Prod environment, use **[Ansible Vault](https://docs.ansible.com/ansible/latest/user_guide/vault.html)**.
 
 
-2 Create an ansilbe play-book for MS-SQL database backup script.  
+2. Create an ansilbe play-book for MS-SQL database backup script.  
 In your home directory on the ansible server, create a playbook.
 
 sqlDBAutoBackup.yml:
@@ -220,7 +220,7 @@ sudo vi sqlDBAutoBackup.yml
   
 
   
-3 Run the play-book.
+3. Run the play-book.
 ```bash
 
 sudo ansible-playbook ~/sqlDBAutoBackup.yml -vvvv
@@ -270,13 +270,13 @@ your.database.server.fqdn : ok=1    changed=1    unreachable=0    failed=0    sk
 ```
 
 [Note]  
-- You can check what databases were backup to where in this output.
+- In this outputs, you can check what databases were backup.
 - In the **PLAY RECAP **, **ok=1** should appear if the run was successful.
 - Also check if databases are existed in the blob container on the Azure Stack Hub.  
   
 
  
-4 Set up a cron job (optional) 
+4. Set up a cron job (optional) 
 To run this yaml playbook in schedule, Add an entry to Ansible user's crontab.
 
 ```bash
