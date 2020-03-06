@@ -1,0 +1,12 @@
+- name: Powershell sqldatabase backup for MS-SQL HA dev
+  hosts: "<Group Name in the Ansible host>"
+  gather_facts: false
+
+  vars:
+   ansible_user: "<UserName>"       # Use Ansible vault for Prod
+   ansible_password: "<PassWord>"   # Use Ansible vault for Prod
+
+  tasks:
+   - win_command: powershell.exe
+     args:
+      stdin: "Full Path of backup powershell script" # e.g. c:\scripts\backupAllSqlDatabases.ps1

@@ -1,0 +1,50 @@
+---
+# Play that will install the Nagios Cross Platform Agent for Windows Hosting Group.
+- name: Play to download, install, and configure Nagios Cross Platform Agent
+# All hosts in hte Ansible hosts file
+# hosts: all
+
+# Single host example
+  hosts: hoge.hoge.com
+
+# Import variables
+  vars_files:
+    - vars/common_vars.yml
+  gather_facts: no
+
+  tasks:
+  - name: Create download directory
+    win_file:
+      path: c:\\Temp
+      state: directory
+
+  - name: Copy NCPA installer files locally from Online Nagios Asset site
+    win_get_url:
+      url: "{{ ncpa_excutable_url }}"
+      dest: "{{ ncpa_dest_path }}"
+      validate_certs: no
+
+# Example of using share folder as a source.
+#    win_copy:
+#      src: \\{{ share_server }}\nagios\NCPA_2.2.0
+#      dest: c:\installers
+#      remote_src: True
+#    become: True
+#    become_method: runas
+#    become_flags: logon_type=new_credentials logon_flags=netcredentials_only
+
+  - name: Install NCPA
+    win_package:
+      path: "{{ ncpa_dest_path }}"
+      arguments: '/S /TOKEN="{{ ncpa_token }}" /NRDPURL="{{ nrdp_url }}" /NRDPTOKEN="{{ nrdp_token }}"'
+      product_id: 'NCPA'
+
+  - name: Copy the ncpa.cfg template for Windows
+    win_template:
+      src: "{{ template_path }}win-nrdp.cfg.j2"
+      dest: "{{ nrdp_conf_path }}\\nrdp.cfg"
+
+  - name: Restart NCPA
+    win_service:
+      name: ncpapassive
+      state: restarted

@@ -1,0 +1,40 @@
+#
+# AUTO GENERATED NRDP CONFIG FROM WINDOWS INSTALLER
+#
+
+[passive checks]
+
+# Host check  - This is to stop "pending check" status in Nagios
+%HOSTNAME%|__HOST__ = system/agent_version
+
+#System uptime events :  warn on anything that's been up for less than an hour or over 12 months, and critical on anything that's been up for less than a minute or more than 2 years.
+%HOSTNAME%|System_Uptime|300 = system/uptime?check=true&warning=3600:31104000&critical=60:62208000
+
+
+# Service checks
+%HOSTNAME%|CPU Usage = cpu/percent --warning 80 --critical 90 --aggregate avg
+
+##Disk (C: to Z:) Remove the comment for a drive(s) that should be monitored. C: and D: are set by default. 
+%HOSTNAME%|Disk_Usage_C|300 = disk/logical/C:|/used_percent --warning 80.00 --critical 90.00 --units Gi
+%HOSTNAME%|Disk_Free_Space_C|300 = disk/logical/C:|/free --warning 1200: --critical 1000: --units M
+%HOSTNAME%|Disk_Usage_D|300 = disk/logical/D:|/used_percent --warning 80.00 --critical 90.00 --units Gi
+%HOSTNAME%|Disk_Free_Space_D|300 = disk/logical/D:|/free --warning
+
+##Memory & Swap
+%HOSTNAME%|Swap_Usage|900 = memory/swap --warning 80 --critical 99 --units Gi
+%HOSTNAME%|Memory_Usage|900 = memory/virtual --warning 95 --critical 99.99 --units Gi
+
+##Proc
+%HOSTNAME%|Process_Count|600 = processes --warning 500 --critical 600
+%HOSTNAME%|Process_Count|300 = processes?mem_percent=10&cpu_percent=10&combiner=or&units=Gi&check=true&warning=4&critical=9
+
+##Network for 10 Gb bandwidth
+%HOSTNAME%|NetIF_Bytes_Sent|900 = windowscounters/Network Interface(*)/Bytes Sent/sec?sleep=5&check=true&warning=104217728&critical=134217728
+%HOSTNAME%|NetIF_Bytes_Received|900 = windowscounters/Network Interface(*)/Bytes Received/sec?sleep=5&check=true&warning=104217728&critical=134217728
+%HOSTNAME%|NetIF_Packets_Sent|900 = windowscounters/Network Interface(*)/Packets Sent/sec?sleep=5&check=true&warning=812740&critical=14880960
+%HOSTNAME%|NetIF_Packets_Received|900 = windowscounters/Network Interface(*)/Packets Received/sec?sleep=5&check=true&warning=812740&critical=14880960
+%HOSTNAME%|NetIF_Output_Queue_Length|900 = windowscounters/Network Interface(*)/Output Queue Length?check=true&warning=1&critical=2
+
+
+#NCPA Service Check
+%HOSTNAME%|Service_Check_NCPA|60 = services?service=ncpapassive&service=ncpalistener&check=true&status=running
