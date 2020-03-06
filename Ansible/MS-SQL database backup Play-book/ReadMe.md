@@ -8,7 +8,7 @@ This instruction works only if the SQL database service has been built using the
 According to the Microsoft support and document, this is by design:  
   
 > [Backup & Restore Option for SQL server](https://docs.microsoft.com/en-us/azure/virtual-machines/windows/sql/virtual-machines-windows-sql-backup-recovery#decision-matrix)   
-> ![Decision Matrix](https://github.dxc.com/tmorikawa/images/blob/master/integration-AzureStackHub/azsh-decision-matrix.png)  
+> ![Decision Matrix](imgs/azsh-decision-matrix.png)  
   
 <br>  
   
