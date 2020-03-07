@@ -39,7 +39,7 @@
       arguments: '/S /TOKEN="{{ ncpa_token }}" /NRDPURL="{{ nrdp_url }}" /NRDPTOKEN="{{ nrdp_token }}"'
       product_id: 'NCPA'
 
-  - name: Copy the ncpa.cfg template for Windows
+  - name: Copy the nrdp.cfg template for Windows
     win_template:
       src: "{{ template_path }}win-nrdp.cfg.j2"
       dest: "{{ nrdp_conf_path }}\\nrdp.cfg"
