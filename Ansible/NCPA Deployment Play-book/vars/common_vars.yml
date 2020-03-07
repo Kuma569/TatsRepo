@@ -5,7 +5,7 @@ ansible_become_pass: <PassWord> # Use secret in Ansible for Prod.
 # for using share server to get NCPA
 #share_server: "<share server fqdn>"
 
-template_path: /home/<Ansible service account name>/ncpa_win_autoresister/templates/
+template_path: /home/<Ansible service account name>/templates/
 
 nrdp_url: "https://<Nagios XI FQDN>/nrdp/"
 nrdp_token: <Nagios API token - Nagios Admin will provide>

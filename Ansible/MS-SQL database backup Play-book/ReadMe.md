@@ -29,27 +29,28 @@ In this ReadMe article, option B is described.
 
 We will run though these steps below.
 
-1. Create a blob storage in Azure Stack Hub.
-2. Add Ansible service account to MS-SQL server as sysadmin.
-3. Setup an SQL credential and PowerSell SQLHA database backup script.
-4. Setup Ansible hosts and a yml playbook for SQL HA database backup.  
+    1. Create a blob storage in Azure Stack Hub.
+    2. Add Ansible service account to MS-SQL server as sysadmin.
+    3. Setup an SQL credential and PowerSell SQLHA database backup script.
+    4. Setup Ansible hosts and a yml playbook for SQL HA database backup.
+Note: All scripts, yaml files can be found in this repo.
 
 ### 1. Create a blob storage account in Azure Stack Hub
 
 1 Create a storage account  
-    - Login to the Azure Stack Hub's user portal, and click **"+ Create a resource"** icon and select **"Storage account - blob, file, table, queue"**.  
-    - Fill up the necessary information and click **Create** to create an account.  
+    Login to the Azure Stack Hub's user portal, and click **"+ Create a resource"** icon and select **"Storage account - blob, file, table, queue"**.  
+    Fill up the necessary information and click **Create** to create an account.  
 
 2 Create a blob container  
-    - Navigate to **Storage accounts > "storage_account_name" > Blob**, and click **"+ Container"**.  
-    - Fill up the information and click OK to create. 
+    Navigate to **Storage accounts > "storage_account_name" > Blob**, and click **"+ Container"**.  
+    Fill up the information and click OK to create. 
 
 3 Take a note of storage account access key  
-    - Navigate to **Storage accounts > "storage_account_name" > Access keys**, and get your storage account's **Key**.  
-       Note: Store the key somewhere safe.
+    Navigate to **Storage accounts > "storage_account_name" > Access keys**, and get your storage account's **Key**.  
+    Note: Store the key somewhere safe.
 
 4 Take a note of Primary blob service endpoint  
-    - Navigate to **Storage accounts > "storage_account_name" > Properties** , and get your storage account's endpoint.  
+    Navigate to **Storage accounts > "storage_account_name" > Properties** , and get your storage account's endpoint.  
 
 ### 2. Add Ansible service account to MS-SQL server as sysadmin
 
