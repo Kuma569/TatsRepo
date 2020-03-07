@@ -42,7 +42,7 @@ Copy them over to Ansible's directories
 
 For NCPA's [passive checks](https://www.nagios.org/ncpa/help/2.0/passive.html) . It configures what needs to be monitored, and when needs to be notified to Nagios server. The following configuration is for a standard Windows server.
 
-```t
+```text
 
 #
 # AUTO GENERATED NRDP CONFIG FROM WINDOWS INSTALLER
