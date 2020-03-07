@@ -29,10 +29,10 @@ In this ReadMe article, option B is described.
 
 We will run though these steps below.
 
-    1. Create a blob storage in Azure Stack Hub.
-    2. Add Ansible service account to MS-SQL server as sysadmin.
-    3. Setup an SQL credential and PowerSell SQLHA database backup script.
-    4. Setup Ansible hosts and a yml playbook for SQL HA database backup.
+1. Create a blob storage in Azure Stack Hub.
+2. Add Ansible service account to MS-SQL server as sysadmin.
+3. Setup an SQL credential and PowerSell SQLHA database backup script.
+4. Setup Ansible hosts and a yml playbook for SQL HA database backup.
 Note: All scripts, yaml files can be found in this repo.
 
 ### 1. Create a blob storage account in Azure Stack Hub
