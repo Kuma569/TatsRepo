@@ -20,9 +20,9 @@
 
 ## Solution summary
 
-    1. Copy **"template"** and **"vars"** folders and ***"win-ncpainstall.yml"** file and placed them in the Ansible service account user directory on the Ansible server.
-    2. Set up configurations and variables according to your Ansible & Nagios environment.
-    3. Run play-book to install NCPA on a target host.
+1. Copy **"template"** and **"vars"** folders and ***"win-ncpainstall.yml"** file and placed them in the Ansible service account user directory on the Ansible server.
+2. Set up configurations and variables according to your Ansible & Nagios environment.
+3. Run play-book to install NCPA on a target host.
 
 ### 1.  Copy folders and yaml file over to the Ansible server
 
@@ -120,7 +120,7 @@ ncpa_dest_path: c:\Temp\ncpa-2.2.0.exe
 
 #### Play-book
 
-Play-book for NCPA for Windows server. Change target hosts or host groups. Rest of variables and configurations should be described in hte var file.
+Play-book for NCPA for Windows server. Change target hosts or host groups. Rest of variables and configurations should be described in the var file.
 
 ```yml
 ---
@@ -186,7 +186,7 @@ $ sudo ansible-playbook win-ncpainstall.yml -vvvv
 
 ```
 
-Note: "-vvvv" is a debaug message oprion. Remove if it's not necessary. 
+Note: "-vvvv" is a debug message option. Remove if it's not necessary.
 
 You will see outputs like below:
 
