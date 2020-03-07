@@ -74,7 +74,7 @@ For NCPA's [passive checks](https://www.nagios.org/ncpa/help/2.0/passive.html) .
 %HOSTNAME%|Process_Count|600 = processes --warning 500 --critical 600
 %HOSTNAME%|Process_Count|300 = processes?mem_percent=10&cpu_percent=10&combiner=or&units=Gi&check=true&warning=4&critical=9
 
-##Network for 10 Gb bandwidth, form Windows perf counters.
+##Network for 10 Gb bandwidth, from Windows perf counters.
 %HOSTNAME%|NetIF_Bytes_Sent|900 = windowscounters/Network Interface(*)/Bytes Sent/sec?sleep=5&check=true&warning=104217728&critical=134217728
 %HOSTNAME%|NetIF_Bytes_Received|900 = windowscounters/Network Interface(*)/Bytes Received/sec?sleep=5&check=true&warning=104217728&critical=134217728
 %HOSTNAME%|NetIF_Packets_Sent|900 = windowscounters/Network Interface(*)/Packets Sent/sec?sleep=5&check=true&warning=812740&critical=14880960
