@@ -222,7 +222,7 @@ tasks:
 sudo ansible-playbook ~/sqlDBAutoBackup.yml -vvvv
 
 ```  
-    **"-vvvv"** is a debug mode switch.  
+**"-vvvv"** is a debug mode switch.  
   
 You should see something like this output example
 
