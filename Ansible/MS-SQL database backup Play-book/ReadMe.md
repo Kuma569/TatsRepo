@@ -12,8 +12,8 @@ According to the Microsoft support and document, this is by design:
 > ![Decision Matrix](imgs/azsh-decision-matrix.png)  
   
 To resolve this situation, we have two options:  
-   A. Use third party backup tool, such as NetBackup agent.  
-   B. Use a PowerShell script and run it using Ansible.  
+    A. Use third party backup tool, such as NetBackup agent.  
+    B. Use a PowerShell script and run it using Ansible.  
 
 In this ReadMe article, option B is described.  
 
@@ -22,8 +22,8 @@ In this ReadMe article, option B is described.
 - Ansible server
   In this ReadMe article, Ansible on Ubuntu 18 LTS is used.
 
-- Windows Remote Manager (WinRM) on Windows hosts
-  Ansible will use WinRM to connect MS-SQL Servers.
+- Windows Remote Manager (WinRM) on Windows hosts  
+  Ansible will use WinRM to connect Windows.
   
 ## Solution summary
 
@@ -33,7 +33,6 @@ We will run though these steps below.
 2. Add Ansible service account to MS-SQL server as sysadmin.
 3. Setup an SQL credential and PowerSell SQLHA database backup script.
 4. Setup Ansible hosts and a yml playbook for SQL HA database backup.
-Note: All scripts, yaml files can be found in this repo.
 
 ### 1. Create a blob storage account in Azure Stack Hub
 
@@ -151,7 +150,7 @@ This script will backup all databases except "tempdb" and "model" databsaes.
 
 #### 1. On your Ansible server, Edit an Ansible hosts inventory file for your MS SQL HA servers.  
   
-```bash
+```console
 
 sudo vi  /etc/ansible/hosts
 
@@ -187,8 +186,10 @@ In your home directory on the ansible server, create a playbook.
 
 sqlDBAutoBackup.yml
 
-```bash
+```console
+
    sudo vi sqlDBAutoBackup.yml
+
 ```
 
 ...and add these lines:  
@@ -216,7 +217,7 @@ tasks:
   
 #### 3. Run the play-book
 
-```bash
+```console
 
 sudo ansible-playbook ~/sqlDBAutoBackup.yml -vvvv
 
@@ -225,7 +226,7 @@ sudo ansible-playbook ~/sqlDBAutoBackup.yml -vvvv
   
 You should see something like this output example
 
-```python
+```console
 
 .
 .
@@ -274,7 +275,7 @@ your.database.server.fqdn : ok=1    changed=1    unreachable=0    failed=0    sk
 
 To run this yaml playbook in schedule, Add an entry to Ansible user's crontab.
 
-```bash
+```console
 
 sudo crontab -u <Ansible_service_account_name> -e
 
