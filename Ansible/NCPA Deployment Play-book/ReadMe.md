@@ -229,6 +229,7 @@ PLAY RECAP *********************************************************************
 Depends on how the Nagios Server is set up, but right after Restart NCPA task above, NCPA will start sending configured metrics to Nagios server. Check with your Nagios admin if they can see the metrics or not. If not, check if NCPA is up and running, and 5693 port is opened.
 
 Also check with these articles:
+
 [NCPA Documentation](https://www.nagios.org/ncpa/help.php)  
 [NCPA Common problem](https://support.nagios.com/kb/category.php?id=91)  
 [NCPA GitHub](https://github.com/NagiosEnterprises/ncpa/issues)  
