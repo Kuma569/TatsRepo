@@ -6,16 +6,12 @@
 
 - Ansible server
   In this ReadMe article, Ansible on Ubuntu 18 LTS is used.
-
 - Nagios server
   In this Readme article, Nagios XI is used.
-
 - Windows Remote Manager (WinRM) on Windows managed hosts(VMs).
   Ansible will use WinRM to connect Windows Servers.
-
 - SSL certificate exchange between Ansible and Linux managed hosts(VMs).
   Ansible will use SSH connection for the Ansible.
-
 - Bi-directional port 5693 (TCP) has to be opened from your VMs to Nagios XI server for sending monitored metrics and events.
 
 ## Solution summary
@@ -28,16 +24,17 @@
 
 Place these folders and files under home directory in the Ansible.
 
-Repo under the **NCPA Deployment Play-book**:
-    - Template folder: templates
-    - Variables folder: vars
-    - Play-book: win-ncpainstall.yml
+Repo under the **NCPA Deployment Play-book**
 
-Copy them over to Ansible's directories:
+- Template folder: templates
+- Variables folder: vars
+- Play-book: win-ncpainstall.yml
 
-    - Templates folder: /home/"Ansible service account name"/ncpa_win_autoresister/templates
-    - Variables folder: /home/"Ansible service account name"/ncpa_win_autoresister/vars
-    - Play-book file: /home/"Ansible service account name"/win-ncpainstall.yml
+Copy them over to Ansible's directories
+
+- Templates folder: /home/"Ansible service account name"/ncpa_win_autoresister/templates
+- Variables folder: /home/"Ansible service account name"/ncpa_win_autoresister/vars
+- Play-book file: /home/"Ansible service account name"/win-ncpainstall.yml
 
 ### 2. Set-up configurations and variables
 
@@ -179,7 +176,7 @@ Play-book for NCPA for Windows server. Change target hosts or host groups. Rest 
 
 Run the command below from Ansible server:
 
-```bash
+```console
 
 $ cd /home/"Ansible service account name"/
 $ sudo ansible-playbook win-ncpainstall.yml -vvvv
@@ -190,7 +187,7 @@ Note: "-vvvv" is a debug message option. Remove if it's not necessary.
 
 You will see outputs like below:
 
-```json
+```console
 .
 .
 .
