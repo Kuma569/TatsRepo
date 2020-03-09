@@ -91,8 +91,6 @@ For NCPA's [passive checks](https://www.nagios.org/ncpa/help/2.0/passive.html) .
 
 ```
 
-Note: Ansible will deploy this template as a [Jinja2](https://docs.ansible.com/ansible/latest/user_guide/playbooks_templating.html#templating-jinja2) template.
-
 #### Variables
 
 Variables for Ansible access to the VMs and NCPA's settings. All these variables' information should be provided form Ansible admin and Nagios admin.
@@ -210,7 +208,7 @@ changed: [<your windows VM fqdn>] => {
     "display_name": "NCPA Passive - ncpapassive",
     "exists": true,
     "name": "ncpapassive",
-    "path": "\"C:\\Program Files (x86)\\Nagios\\NCPA\\ncpa_passive.exe\"",
+    "path": "\"C:\\Program Files (x86)\\Nagios\\NCPA\\ncpa_passive.exe\""
     "start_mode": "delayed",
     "state": "running",
     "username": "LocalSystem"

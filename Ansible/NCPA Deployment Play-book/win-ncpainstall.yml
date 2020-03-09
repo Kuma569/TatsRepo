@@ -41,7 +41,7 @@
 
   - name: Copy the ncpa.cfg template for Windows
     win_template:
-      src: "{{ template_path }}win-nrdp.cfg.j2"
+      src: "{{ template_path }}win-nrdp.cfg"
       dest: "{{ nrdp_conf_path }}\\nrdp.cfg"
 
   - name: Restart NCPA
