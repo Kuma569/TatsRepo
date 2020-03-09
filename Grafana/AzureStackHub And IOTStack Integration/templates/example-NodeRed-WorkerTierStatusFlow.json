@@ -1,0 +1,276 @@
+[
+    {
+        "id": "8b3e5654.1986d8",
+        "type": "tab",
+        "label": "Get Worker Tier Stats",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "d80141fc.67306",
+        "type": "http request",
+        "z": "8b3e5654.1986d8",
+        "name": "Get Access Token",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://login.microsoftonline.com/<Azure App Registoration (Directory)tenant ID>/oauth2/token",,
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 370,
+        "y": 180,
+        "wires": [
+            [
+                "2b14a077.c9a54"
+            ]
+        ]
+    },
+    {
+        "id": "c86fb57a.d43538",
+        "type": "function",
+        "z": "8b3e5654.1986d8",
+        "name": "Create Request",
+		"func": "msg.payload = \"grant_type=client_credentials&client_id=<Azure App Registoration App (Client) ID>&client_secret=<getAuthTokenFlow - secret>&resource=https://<AzureStack domain>.onmicrosoft.com/<ID from Azure App ID URI>\";\nmsg.headers = {};\nmsg.headers['Content-Type'] = 'application/x-www-form-urlencoded';\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 140,
+        "y": 180,
+        "wires": [
+            [
+                "d80141fc.67306"
+            ]
+        ]
+    },
+    {
+        "id": "2b14a077.c9a54",
+        "type": "change",
+        "z": "8b3e5654.1986d8",
+        "name": "Extract Access Token",
+        "rules": [
+            {
+                "t": "set",
+                "p": "token_type",
+                "pt": "flow",
+                "to": "payload.token_type",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "access_token",
+                "pt": "flow",
+                "to": "payload.access_token",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "access_token_expires_on",
+                "pt": "flow",
+                "to": "payload.expires_on",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 600,
+        "y": 180,
+        "wires": [
+            [
+                "3373ab0b.3e8d54"
+            ]
+        ]
+    },
+    {
+        "id": "9d5e50fc.ad0a3",
+        "type": "http request",
+        "z": "8b3e5654.1986d8",
+        "name": "Get Worker Tiers",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://adminmanagement.<region>.<szure stack domain>/subscriptions/<subscription ID>/providers/Microsoft.Web.Admin/locations/<region>/workerTiers?api-version=2018-02-01",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 150,
+        "y": 360,
+        "wires": [
+            [
+                "370e3f11.c3ad4"
+            ]
+        ]
+    },
+    {
+        "id": "3373ab0b.3e8d54",
+        "type": "function",
+        "z": "8b3e5654.1986d8",
+        "name": "Set Authorization Header",
+        "func": "msg.payload = null;\nmsg.headers = {};\nmsg.headers['Authorization'] = flow.get('token_type') + ' ' + flow.get('access_token');\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 890,
+        "y": 180,
+        "wires": [
+            [
+                "9d5e50fc.ad0a3",
+                "18770174.396faf"
+            ]
+        ]
+    },
+    {
+        "id": "8c009644.ce74b8",
+        "type": "debug",
+        "z": "8b3e5654.1986d8",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 470,
+        "y": 40,
+        "wires": []
+    },
+    {
+        "id": "370e3f11.c3ad4",
+        "type": "splitter",
+        "z": "8b3e5654.1986d8",
+        "name": "For Each Tier",
+        "property": "payload",
+        "x": 410,
+        "y": 360,
+        "wires": [
+            [
+                "f1f2012d.b16ad"
+            ]
+        ]
+    },
+    {
+        "id": "502da3d6.f6806c",
+        "type": "influxdb out",
+        "z": "8b3e5654.1986d8",
+        "influxdb": "53887d59.e0c5f4",
+        "name": "save to influxdb",
+        "measurement": "WorkerTier",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 960,
+        "y": 360,
+        "wires": []
+    },
+    {
+        "id": "f1f2012d.b16ad",
+        "type": "function",
+        "z": "8b3e5654.1986d8",
+        "name": "Create Worker Tier Measurements",
+        "func": "const properties = msg.payload.properties;\n\nmsg.payload = [{\n    computeInstances: properties.computeInstances,\n    registeredWorkerCount: properties.registeredWorkerCount,\n    usedWorkerCount: properties.usedWorkerCount,\n    readyWorkerCount: properties.readyWorkerCount,\n    availableWorkerCount: properties.availableWorkerCount,\n},\n{\n    name:msg.payload.name,\n    description:properties.description,\n    computeVmSize:properties.computeVmSize,\n    computeScaleSetName:properties.computeScaleSetName,\n    \n}];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 660,
+        "y": 360,
+        "wires": [
+            [
+                "502da3d6.f6806c"
+            ]
+        ]
+    },
+    {
+        "id": "18770174.396faf",
+        "type": "http request",
+        "z": "8b3e5654.1986d8",
+        "name": "Get Servers",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://adminmanagement.<region>.<azure stack domain>/subscriptions/<subscription ID>/providers/Microsoft.Web.Admin/locations/<region>/metrics/?startTime={{{timeminute}}}:00.000Z&endTime={{{timeminute}}}:59.999Z&timeGrain=PT1M&api-version=2018-02-01",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 130,
+        "y": 440,
+        "wires": [
+            [
+                "63c52f15.1cf1e"
+            ]
+        ]
+    },
+    {
+        "id": "63c52f15.1cf1e",
+        "type": "splitter",
+        "z": "8b3e5654.1986d8",
+        "name": "For Each Server",
+        "property": "payload",
+        "x": 340,
+        "y": 440,
+        "wires": [
+            [
+                "f625f71b.39a378"
+            ]
+        ]
+    },
+    {
+        "id": "f625f71b.39a378",
+        "type": "function",
+        "z": "8b3e5654.1986d8",
+        "name": "Create Server Measurements",
+        "func": "const properties = msg.payload.properties;\n\nmsg.payload = [{\n    cpuPercentage: properties.cpuPercentage,\n    memoryPercentage: properties.memoryPercentage,\n    runningSitesNumber: properties.runningSitesNumber,\n    diskQueueLength: properties.diskQueueLength,\n    siteCount: properties.siteCount,\n    httpQueueLength: properties.httpQueueLength,\n    siteCount: properties.siteCount,\n},\n{\n    name:properties.name,\n    status:properties.status,\n    serverState:properties.serverState,\n    platformVersion:properties.platformVersion,\n    readyForLoadBalancing:properties.readyForLoadBalancing,\n    isStandbyServer:properties.isStandbyServer,\n    isDraining:properties.isDraining,\n    role:properties.role\n}];\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 650,
+        "y": 440,
+        "wires": [
+            [
+                "51606389.b0822c"
+            ]
+        ]
+    },
+    {
+        "id": "51606389.b0822c",
+        "type": "influxdb out",
+        "z": "8b3e5654.1986d8",
+        "influxdb": "53887d59.e0c5f4",
+        "name": "save to influxdb",
+        "measurement": "Servers",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 960,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "641f5787.5101e8",
+        "type": "function",
+        "z": "8b3e5654.1986d8",
+        "name": "getMinute",
+        "func": "//Stolen from https://stackoverflow.com/a/8016205/3470655\ndatestr = new Date(msg.payload).toString();\ndatestr = datestr.substring(0, datestr.lastIndexOf(\":\"));\nmsg.timeminute = datestr;\n//node.error(\"https://adminmanagement.<region>.<azure stack domain>/subscriptions/<subscription ID>/providers/Microsoft.Web.Admin/locations/<region>/metrics/?startTime={{{msg.timeminute}}}:00.000Z&endTime={{{msg.timeminute}}}:59.999Z&timeGrain=PT1M&api-version=2018-02-01\")\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 300,
+        "y": 100,
+        "wires": [
+            [
+                "8c009644.ce74b8",
+                "c86fb57a.d43538"
+            ]
+        ]
+    },
+    {
+        "id": "53887d59.e0c5f4",
+        "type": "influxdb",
+        "z": "",
+        "hostname": "<influx DB's IP>",
+        "port": "8086",
+        "protocol": "http",
+        "database": "azshmonitorprod",
+        "name": "InfluxdbAzshubMonitor-prod",
+        "usetls": false,
+        "tls": ""
+    }
+]
