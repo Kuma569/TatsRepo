@@ -1,0 +1,740 @@
+[
+    {
+        "id": "7eba0b13.e2eef4",
+        "type": "tab",
+        "label": "Get Azure Stack Pilot Status",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "8d42b6c7.6b9648",
+        "type": "inject",
+        "z": "7eba0b13.e2eef4",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "60",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 210,
+        "y": 120,
+        "wires": [
+            [
+                "f70967da.fec4b8"
+            ]
+        ]
+    },
+    {
+        "id": "b00a835b.e92fe",
+        "type": "debug",
+        "z": "7eba0b13.e2eef4",
+        "name": "",
+        "active": false,
+        "tosidebar": true,
+        "console": true,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1070,
+        "y": 400,
+        "wires": []
+    },
+    {
+        "id": "f5664f90.6762b",
+        "type": "http request",
+        "z": "7eba0b13.e2eef4",
+        "name": "Get Worker Tiers",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://adminmanagement.<region>.<Azure stack external domin fqdn>/subscriptions/<Subscription ID>/providers/Microsoft.Web.Admin/locations/<region>/workerTiers?api-version=2018-02-01",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 231,
+        "y": 239,
+        "wires": [
+            [
+                "5029e16.8d55b2"
+            ]
+        ]
+    },
+    {
+        "id": "5b90ce3e.9cb02",
+        "type": "function",
+        "z": "7eba0b13.e2eef4",
+        "name": "Set Authorization Header",
+        "func": "msg.headers = {};\nmsg.headers['Authorization'] = global.get('az_auth') || 0;\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1010,
+        "y": 120,
+        "wires": [
+            [
+                "f5664f90.6762b",
+                "c992c6ce.74cc38",
+                "25bff97a.0114f6",
+                "59a106fa.2ba0f8",
+                "7767a94d.6958e8",
+                "859f3429.f320e8",
+                "390c36e4.a502fa",
+                "cb49fac0.120948",
+                "aacf5bd7.db7eb8"
+            ]
+        ]
+    },
+    {
+        "id": "545b7bf6.06fee4",
+        "type": "debug",
+        "z": "7eba0b13.e2eef4",
+        "name": "debug1",
+        "active": false,
+        "tosidebar": true,
+        "console": false,
+        "tostatus": false,
+        "complete": "true",
+        "targetType": "full",
+        "x": 1080,
+        "y": 440,
+        "wires": []
+    },
+    {
+        "id": "5029e16.8d55b2",
+        "type": "splitter",
+        "z": "7eba0b13.e2eef4",
+        "name": "For Each Tier",
+        "property": "payload",
+        "x": 536.0000076293945,
+        "y": 240,
+        "wires": [
+            [
+                "761c5088.a79a5"
+            ]
+        ]
+    },
+    {
+        "id": "37100ccd.5c72f4",
+        "type": "influxdb out",
+        "z": "7eba0b13.e2eef4",
+        "influxdb": "53887d59.e0c5f4",
+        "name": "save to influxdb -  azshmonitorprod",
+        "measurement": "WorkerTier",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 1133,
+        "y": 239,
+        "wires": []
+    },
+    {
+        "id": "761c5088.a79a5",
+        "type": "function",
+        "z": "7eba0b13.e2eef4",
+        "name": "Create Worker Tier Measurements",
+        "func": "const properties = msg.payload.properties;\n\nmsg.payload = [{\n    computeInstances: properties.computeInstances,\n    registeredWorkerCount: properties.registeredWorkerCount,\n    usedWorkerCount: properties.usedWorkerCount,\n    readyWorkerCount: properties.readyWorkerCount,\n    availableWorkerCount: properties.availableWorkerCount,\n},\n{\n    name:msg.payload.name,\n    description:properties.description,\n    computeVmSize:properties.computeVmSize,\n    computeScaleSetName:properties.computeScaleSetName,\n    \n}];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 796.0000076293945,
+        "y": 240,
+        "wires": [
+            [
+                "37100ccd.5c72f4"
+            ]
+        ]
+    },
+    {
+        "id": "aacf5bd7.db7eb8",
+        "type": "http request",
+        "z": "7eba0b13.e2eef4",
+        "name": "Get Servers",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://adminmanagement.<region>.<Azure stack external domin fqdn>/subscriptions/<Subscription ID>/providers/Microsoft.Web.Admin/locations/<region>/servers/?startTime={{{timeminute}}}:00.000Z&endTime={{{timeminute}}}:59.999Z&timeGrain=PT1M&api-version=2018-02-01",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 211,
+        "y": 319,
+        "wires": [
+            [
+                "5224351e.9c7bcc"
+            ]
+        ]
+    },
+    {
+        "id": "5224351e.9c7bcc",
+        "type": "splitter",
+        "z": "7eba0b13.e2eef4",
+        "name": "For Each Server",
+        "property": "payload",
+        "x": 536.0000076293945,
+        "y": 320,
+        "wires": [
+            [
+                "1575c9dc.284116"
+            ]
+        ]
+    },
+    {
+        "id": "1575c9dc.284116",
+        "type": "function",
+        "z": "7eba0b13.e2eef4",
+        "name": "Create Server Measurements",
+        "func": "const properties = msg.payload.properties;\n\nmsg.payload = [{\n    cpuPercentage: properties.cpuPercentage,\n    memoryPercentage: properties.memoryPercentage,\n    runningSitesNumber: properties.runningSitesNumber,\n    diskQueueLength: properties.diskQueueLength,\n    siteCount: properties.siteCount,\n    httpQueueLength: properties.httpQueueLength,\n},\n{\n    name:properties.name,\n    status:properties.status,\n    serverState:properties.serverState,\n    platformVersion:properties.platformVersion,\n    readyForLoadBalancing:properties.readyForLoadBalancing,\n    isStandbyServer:properties.isStandbyServer,\n    isDraining:properties.isDraining,\n    role:properties.role,\n}];\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 816.0000076293945,
+        "y": 320,
+        "wires": [
+            [
+                "bbf877f9.9758a8",
+                "b00a835b.e92fe"
+            ]
+        ]
+    },
+    {
+        "id": "bbf877f9.9758a8",
+        "type": "influxdb out",
+        "z": "7eba0b13.e2eef4",
+        "influxdb": "53887d59.e0c5f4",
+        "name": "save to influxdb - azshmonitorprod",
+        "measurement": "Servers",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 1133,
+        "y": 319,
+        "wires": []
+    },
+    {
+        "id": "c992c6ce.74cc38",
+        "type": "http request",
+        "z": "7eba0b13.e2eef4",
+        "name": "Get Microsoft.Compute usages",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://adminmanagement.<region>.<Azure stack external domin fqdn>/subscriptions/<Subscription ID>/providers/Microsoft.Compute/locations/<region>/usages?api-version=2017-12-01",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 269,
+        "y": 479,
+        "wires": [
+            [
+                "842f1bed.06f898"
+            ]
+        ]
+    },
+    {
+        "id": "842f1bed.06f898",
+        "type": "splitter",
+        "z": "7eba0b13.e2eef4",
+        "name": "For Compute",
+        "property": "payload.value",
+        "x": 526.0000076293945,
+        "y": 480,
+        "wires": [
+            [
+                "dc4c3b.06b913c8"
+            ]
+        ]
+    },
+    {
+        "id": "99f093a9.00e05",
+        "type": "file",
+        "z": "7eba0b13.e2eef4",
+        "name": "outputs2.txt",
+        "filename": "/data/outputs2.txt",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 1070,
+        "y": 1260,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "dc4c3b.06b913c8",
+        "type": "function",
+        "z": "7eba0b13.e2eef4",
+        "name": "Create Compute Measurements",
+        "func": "const obj = msg.payload;\n\nmsg.time = new Date().toLocaleString();\n\nmsg.payload = [{\n    currentValue: obj.currentValue,\n    unit: obj.unit,\n    currentTime: msg.time,\n},\n{\n    localizedValue: obj.name.localizedValue\n}];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 806.0000076293945,
+        "y": 480,
+        "wires": [
+            [
+                "d9afb130.f9313",
+                "545b7bf6.06fee4"
+            ]
+        ]
+    },
+    {
+        "id": "25bff97a.0114f6",
+        "type": "http request",
+        "z": "7eba0b13.e2eef4",
+        "name": "Get Farms Metrics from system.<region>",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://adminmanagement.<region>.<Azure stack external domin fqdn>/subscriptions/<Subscription ID>/resourcegroups/system.<region>/providers/Microsoft.Storage.Admin/farms/<farm ID>/metrics?api-version=2015-12-01-preview",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 250,
+        "y": 620,
+        "wires": [
+            [
+                "86d04612.809638"
+            ]
+        ]
+    },
+    {
+        "id": "59a106fa.2ba0f8",
+        "type": "http request",
+        "z": "7eba0b13.e2eef4",
+        "name": "Get Service Health from system.<region>",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://adminmanagement.<region>.<Azure stack external domin fqdn>/subscriptions/<Subscription ID>/resourceGroups/system.<region>/providers/Microsoft.InfrastructureInsights.Admin/regionHealths/<region>/serviceHealths?api-version=2016-05-01",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 273.00000762939453,
+        "y": 540,
+        "wires": [
+            [
+                "fb3da2ab.f09d6"
+            ]
+        ],
+        "info": "Region Healths - List\nref: https://docs.microsoft.com/bs-cyrl-ba/rest/api/azurestack/regionhealths/list?view=azurecosmosdbcfp-1.0.0\n"
+    },
+    {
+        "id": "7767a94d.6958e8",
+        "type": "http request",
+        "z": "7eba0b13.e2eef4",
+        "name": "Get blob Metrics from system.<region>",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://adminmanagement.<region>.<Azure stack external domin fqdn>/subscriptions/<Subscription ID>/resourcegroups/system.<region>/providers/Microsoft.Storage.Admin/farms/<farm ID>/blobservices/default/metrics/?startTime={{{timeminute}}}:00.000Z&endTime={{{timeminute}}}:59.999Z&timeGrain=PT2M&api-version=2015-12-01-preview",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 256.00000762939453,
+        "y": 820,
+        "wires": [
+            [
+                "a0b6bee9.2ca4"
+            ]
+        ]
+    },
+    {
+        "id": "d9afb130.f9313",
+        "type": "influxdb out",
+        "z": "7eba0b13.e2eef4",
+        "influxdb": "53887d59.e0c5f4",
+        "name": "save to influxdb -  azshmonitorprod",
+        "measurement": "Compute",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 1133,
+        "y": 479,
+        "wires": []
+    },
+    {
+        "id": "fb3da2ab.f09d6",
+        "type": "splitter",
+        "z": "7eba0b13.e2eef4",
+        "name": "For Service Health",
+        "property": "payload.value",
+        "x": 546.0000076293945,
+        "y": 540,
+        "wires": [
+            [
+                "19691078.dcbc2"
+            ]
+        ]
+    },
+    {
+        "id": "19691078.dcbc2",
+        "type": "function",
+        "z": "7eba0b13.e2eef4",
+        "name": "Create Health Measurements",
+        "func": "const obj = msg.payload;\nmsg.time = new Date().toLocaleString();\n\nmsg.payload = [{\n    criticalAlertCount: obj.properties.alertSummary.criticalAlertCount,\n    warningAlertCount: obj.properties.alertSummary.warningAlertCount,\n    currentTime: msg.time,\n},\n{\n    displayName: obj.properties.displayName,\n    healthState: obj.properties.healthState,\n}];\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 816.0000076293945,
+        "y": 540,
+        "wires": [
+            [
+                "96baa2ea.46079"
+            ]
+        ]
+    },
+    {
+        "id": "96baa2ea.46079",
+        "type": "influxdb out",
+        "z": "7eba0b13.e2eef4",
+        "influxdb": "53887d59.e0c5f4",
+        "name": "save to influxdb - azshmonitorprod",
+        "measurement": "Health",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 1136.0000076293945,
+        "y": 540,
+        "wires": []
+    },
+    {
+        "id": "86d04612.809638",
+        "type": "splitter",
+        "z": "7eba0b13.e2eef4",
+        "name": "For Farms Metrics",
+        "property": "payload.value",
+        "x": 526.9999923706055,
+        "y": 619,
+        "wires": [
+            [
+                "c93f8db2.e1832"
+            ]
+        ]
+    },
+    {
+        "id": "c93f8db2.e1832",
+        "type": "function",
+        "z": "7eba0b13.e2eef4",
+        "name": "Create Farms Metrics",
+        "func": "const obj = msg.payload;\n//const metrics = obj.metricsValue.slice(0);\nconst metrics = msg.payload.metricValues.slice(0,1);\n\n//for(var i = 0, len = metrics.length; i < len; i++){\n//    metrics.push(metrics[i][0]);\n//}\n\n\nmsg.payload ={\n    displayName: obj.name.localizedValue,\n    timeStamp: obj.startTime,\n    endtime: obj.endTime,\n    latestMetric: metrics,\n    //test: obj.metricValues, \n};\n\n\n\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 523.9999923706055,
+        "y": 680,
+        "wires": [
+            [
+                "e837de56.7111e"
+            ]
+        ]
+    },
+    {
+        "id": "a24968c.8cd1398",
+        "type": "influxdb out",
+        "z": "7eba0b13.e2eef4",
+        "influxdb": "53887d59.e0c5f4",
+        "name": "save to influxdb -  azshmonitorprod",
+        "measurement": "FarmsMetrics",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 1133,
+        "y": 619,
+        "wires": []
+    },
+    {
+        "id": "e837de56.7111e",
+        "type": "splitter",
+        "z": "7eba0b13.e2eef4",
+        "name": "For Farms Metrics 2",
+        "property": "payload.latestMetric",
+        "x": 520,
+        "y": 740,
+        "wires": [
+            [
+                "3ce7a7be.ac54f8"
+            ]
+        ]
+    },
+    {
+        "id": "3ce7a7be.ac54f8",
+        "type": "function",
+        "z": "7eba0b13.e2eef4",
+        "name": "Create Farms Metrics",
+        "func": "const obj = msg.payload_unsplit;\n//const metrics = obj.metricsValue.slice(0);\nconst metrics = msg.payload;\n\n//for(var i = 0, len = metrics.length; i < len; i++){\n//    metrics.push(metrics[i][0]);\n//}\nmsg.time = new Date().toLocaleString();\n\nmsg.payload =[{\n    //displayName: obj.displayName,\n    //timeStamp: obj.timeStamp,\n    //endtime: obj.endtime,\n    latestMetric: metrics.average,\n    currentTime: msg.time,\n},\n{\n    displayName: obj.displayName\n}];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 836.0000076293945,
+        "y": 620,
+        "wires": [
+            [
+                "a24968c.8cd1398",
+                "761eaf03.b936c"
+            ]
+        ]
+    },
+    {
+        "id": "a0b6bee9.2ca4",
+        "type": "splitter",
+        "z": "7eba0b13.e2eef4",
+        "name": "For Blob Metrics",
+        "property": "payload.value",
+        "x": 536.0000076293945,
+        "y": 820,
+        "wires": [
+            [
+                "f7bda6d7.e22558"
+            ]
+        ]
+    },
+    {
+        "id": "f7bda6d7.e22558",
+        "type": "function",
+        "z": "7eba0b13.e2eef4",
+        "name": "Create Blob Metrics",
+        "func": "const obj = msg.payload;\n//const metrics = msg.payload.metricValues.slice(0,1);\n\n//for(var i = 0, len = metrics.length; i < len; i++){\n//    metrics.push(metrics[i][0]);\n//}\nmsg.time = new Date().toLocaleString();\n\nmsg.payload =[{\n    //latestMetric: obj.metricValues, <-- For some reason, no value in the array...\n    currentTime: msg.time,\n},\n{\n    displayName: obj.name.value,\n    unit: obj.metricUnit\n}];\n\nreturn msg;",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 790,
+        "y": 820,
+        "wires": [
+            [
+                "669eba63.c47504"
+            ]
+        ]
+    },
+    {
+        "id": "669eba63.c47504",
+        "type": "influxdb out",
+        "z": "7eba0b13.e2eef4",
+        "influxdb": "53887d59.e0c5f4",
+        "name": "save to influxdb - azshmonitorprod",
+        "measurement": "BlobMetrics",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 1140,
+        "y": 820,
+        "wires": []
+    },
+    {
+        "id": "859f3429.f320e8",
+        "type": "http request",
+        "z": "7eba0b13.e2eef4",
+        "name": "Get Subscription.Admin Plans",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://adminmanagement.<region>.<Azure stack external domin fqdn>/subscriptions/<Subscription ID>/providers/Microsoft.Subscriptions.Admin/plans?api-version=2015-11-01",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 266.00000762939453,
+        "y": 1040,
+        "wires": [
+            [
+                "d5e98a6d.fb0178"
+            ]
+        ],
+        "info": "Plans - List All\n\nref: https://docs.microsoft.com/bs-cyrl-ba/rest/api/azurestack/plans/listall?view=azurecosmosdbcfp-1.0.0"
+    },
+    {
+        "id": "d5e98a6d.fb0178",
+        "type": "splitter",
+        "z": "7eba0b13.e2eef4",
+        "name": "For Plans",
+        "property": "payload.value",
+        "x": 496.00000762939453,
+        "y": 1040,
+        "wires": [
+            [
+                "4904e033.9be81"
+            ]
+        ]
+    },
+    {
+        "id": "4904e033.9be81",
+        "type": "function",
+        "z": "7eba0b13.e2eef4",
+        "name": "Create Plan Measurements",
+        "func": "const obj = msg.payload;\nmsg.time = new Date().toLocaleString();\n\nmsg.payload = [{\n    //planDesc: obj.properties.description,\n    subCount: obj.properties.subscriptionCount,\n    //quotaIDs: obj.properties.quotaIds,\n    currentTime: msg.time,\n},\n{\n    planName: obj.name,\n    planId: obj.id,\n    planType: obj.type\n    \n}];\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 796.0000076293945,
+        "y": 1040,
+        "wires": [
+            [
+                "1e7f53b.13ba0ac"
+            ]
+        ]
+    },
+    {
+        "id": "1e7f53b.13ba0ac",
+        "type": "influxdb out",
+        "z": "7eba0b13.e2eef4",
+        "influxdb": "53887d59.e0c5f4",
+        "name": "save to influxdb - azshmonitorprod",
+        "measurement": "Plans",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 1130.0000076293945,
+        "y": 1040,
+        "wires": []
+    },
+    {
+        "id": "390c36e4.a502fa",
+        "type": "http request",
+        "z": "7eba0b13.e2eef4",
+        "name": "Get Subscription.Admin Offers",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://adminmanagement.<region>.<Azure stack external domin fqdn>/subscriptions/<Subscription ID>/providers/Microsoft.Subscriptions.Admin/offers?api-version=2015-11-01",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 266.00000762939453,
+        "y": 1160,
+        "wires": [
+            [
+                "8695e77d.75dbc8"
+            ]
+        ],
+        "info": "Plans - List All\n\nref: https://docs.microsoft.com/bs-cyrl-ba/rest/api/azurestack/plans/listall?view=azurecosmosdbcfp-1.0.0"
+    },
+    {
+        "id": "8695e77d.75dbc8",
+        "type": "splitter",
+        "z": "7eba0b13.e2eef4",
+        "name": "For Offers",
+        "property": "payload.value",
+        "x": 496.00000762939453,
+        "y": 1160,
+        "wires": [
+            [
+                "1b5b114a.69e35f"
+            ]
+        ]
+    },
+    {
+        "id": "1b5b114a.69e35f",
+        "type": "function",
+        "z": "7eba0b13.e2eef4",
+        "name": "Create Offer Measurements",
+        "func": "const obj = msg.payload;\n\nmsg.payload = [{\n    offerName: obj.name,\n    offerId: obj.id,\n    offerType: obj.type,\n    subCount: obj.properties.subscriptionCount,\n    maxSubPerAcct: obj.properties.maxSubscriptionsPerAccount,\n    state: obj.properties.state,\n}];\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 796.0000076293945,
+        "y": 1160,
+        "wires": [
+            [
+                "8ffc0824.d565d8"
+            ]
+        ]
+    },
+    {
+        "id": "8ffc0824.d565d8",
+        "type": "influxdb out",
+        "z": "7eba0b13.e2eef4",
+        "influxdb": "53887d59.e0c5f4",
+        "name": "save to influxdb - azshmonitorprod",
+        "measurement": "Offers",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 1130.0000076293945,
+        "y": 1160,
+        "wires": []
+    },
+    {
+        "id": "cb49fac0.120948",
+        "type": "http request",
+        "z": "7eba0b13.e2eef4",
+        "name": "Get Subscription.Admin Subscriptions",
+        "method": "GET",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://adminmanagement.<region>.<Azure stack external domin fqdn>/subscriptions/<Subscription ID>/providers/Microsoft.Subscriptions.Admin/subscriptions?api-version=2015-11-01",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 250,
+        "y": 1220,
+        "wires": [
+            [
+                "4fb10a16.ba04b4"
+            ]
+        ],
+        "info": "Plans - List All\n\nref: https://docs.microsoft.com/bs-cyrl-ba/rest/api/azurestack/plans/listall?view=azurecosmosdbcfp-1.0.0"
+    },
+    {
+        "id": "4fb10a16.ba04b4",
+        "type": "splitter",
+        "z": "7eba0b13.e2eef4",
+        "name": "For Subscriptions",
+        "property": "payload.value",
+        "x": 530,
+        "y": 1220,
+        "wires": [
+            [
+                "2960115c.07e71e"
+            ]
+        ]
+    },
+    {
+        "id": "2960115c.07e71e",
+        "type": "function",
+        "z": "7eba0b13.e2eef4",
+        "name": "Create Offer Measurements",
+        "func": "const obj = msg.payload;\nconst arr = msg.payload_unsplit;\nvar rgName = obj.offerId.replace(/.+\\/resourceGroups\\//, \"\");\nvar ofrName = obj.offerId.replace(/.+\\/offers\\//, \"\");\n\nmsg.payload = [{\n    resourceName: rgName.replace(/\\/providers\\/.+/, \"\"),\n    offerName: ofrName, \n    subName: obj.displayName,\n    subId: obj.subscriptionId,\n    subOwner: obj.owner,\n    subState: obj.state,\n    tenantId: obj.tenantId,\n    offerId: obj.offerId,\n    subTotal: arr.value.length,\n    urlStatus: msg.statusCode,\n}];\n\n/*function getWordCount() {\n    let map = {};\n    \n    for  (let i = 0; i < msg.payload.length; i++){\n        let item = msg.payload[i];\n        map[item] = (map[item] + 1) || 1;\n    }\n    return map;\n}\n\nmsg.payload2 = [{\n    wordCnt: words(msg.payload.tenantId),\n}];\n*/\n\n\n\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 800,
+        "y": 1220,
+        "wires": [
+            [
+                "2669d882.4b7778"
+            ]
+        ]
+    },
+    {
+        "id": "2669d882.4b7778",
+        "type": "influxdb out",
+        "z": "7eba0b13.e2eef4",
+        "influxdb": "53887d59.e0c5f4",
+        "name": "save to influxdb - azshmonitorprod",
+        "measurement": "Subscription",
+        "precision": "",
+        "retentionPolicy": "",
+        "x": 1134,
+        "y": 1220,
+        "wires": []
+    },
+    {
+        "id": "761eaf03.b936c",
+        "type": "file",
+        "z": "7eba0b13.e2eef4",
+        "name": "Debug.txt",
+        "filename": "/data/Debug.txt",
+        "appendNewline": true,
+        "createDir": true,
+        "overwriteFile": "true",
+        "encoding": "none",
+        "x": 1060,
+        "y": 660,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "53887d59.e0c5f4",
+        "type": "influxdb",
+        "z": "",
+        "hostname": "172.18.0.4",
+        "port": "8086",
+        "protocol": "http",
+        "database": "azshmonitorprod",
+        "name": "InfluxdbAzshubMonitor-prod",
+        "usetls": false,
+        "tls": ""
+    }
+]
