@@ -1,0 +1,121 @@
+[
+    {
+        "id": "8ff87ddf.fdc4f",
+        "type": "tab",
+        "label": "Get Auth Token",
+        "disabled": false,
+        "info": ""
+    },
+    {
+        "id": "43800815.923b88",
+        "type": "http request",
+        "z": "8ff87ddf.fdc4f",
+        "name": "Get Access Token",
+        "method": "POST",
+        "ret": "obj",
+        "paytoqs": false,
+        "url": "https://login.microsoftonline.com/<Azure App Registration (Directory)tenant ID>/oauth2/token",
+        "tls": "",
+        "persist": false,
+        "proxy": "",
+        "authType": "",
+        "x": 530,
+        "y": 120,
+        "wires": [
+            [
+                "156c51ec.aedf4e"
+            ]
+        ]
+    },
+    {
+        "id": "a30e0c45.575eb",
+        "type": "function",
+        "z": "8ff87ddf.fdc4f",
+        "name": "Create Request",
+        "func": "msg.payload = \"grant_type=client_credentials&client_id=<Azure App Registration App (Client) ID>&client_secret=<getAuthTokenFlow - secret>&resource=<Azure App ID URI>\";\nmsg.headers = {};\nmsg.headers['Content-Type'] = 'application/x-www-form-urlencoded';\n\nreturn msg;\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 320,
+        "y": 120,
+        "wires": [
+            [
+                "43800815.923b88"
+            ]
+        ]
+    },
+    {
+        "id": "156c51ec.aedf4e",
+        "type": "change",
+        "z": "8ff87ddf.fdc4f",
+        "name": "Extract Access Token",
+        "rules": [
+            {
+                "t": "set",
+                "p": "token_type",
+                "pt": "flow",
+                "to": "payload.token_type",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "access_token",
+                "pt": "flow",
+                "to": "payload.access_token",
+                "tot": "msg"
+            },
+            {
+                "t": "set",
+                "p": "access_token_expires_on",
+                "pt": "flow",
+                "to": "payload.expires_on",
+                "tot": "msg"
+            }
+        ],
+        "action": "",
+        "property": "",
+        "from": "",
+        "to": "",
+        "reg": false,
+        "x": 760,
+        "y": 120,
+        "wires": [
+            [
+                "5181b9d0.75fce8"
+            ]
+        ]
+    },
+    {
+        "id": "5181b9d0.75fce8",
+        "type": "function",
+        "z": "8ff87ddf.fdc4f",
+        "name": "Save Token to Global",
+        "func": "global.set('az_auth', flow.get('token_type') + ' ' + flow.get('access_token'));\n",
+        "outputs": 1,
+        "noerr": 0,
+        "x": 1000,
+        "y": 120,
+        "wires": [
+            []
+        ]
+    },
+    {
+        "id": "6bc4365e.e833f8",
+        "type": "inject",
+        "z": "8ff87ddf.fdc4f",
+        "name": "",
+        "topic": "",
+        "payload": "",
+        "payloadType": "date",
+        "repeat": "3000",
+        "crontab": "",
+        "once": true,
+        "onceDelay": 0.1,
+        "x": 130,
+        "y": 120,
+        "wires": [
+            [
+                "a30e0c45.575eb"
+            ]
+        ]
+    }
+]

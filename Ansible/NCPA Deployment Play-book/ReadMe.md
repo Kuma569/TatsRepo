@@ -205,7 +205,7 @@ changed: [<your windows VM fqdn>] => {
     "display_name": "NCPA Passive - ncpapassive",
     "exists": true,
     "name": "ncpapassive",
-    "path": "\"C:\\Program Files (x86)\\Nagios\\NCPA\\ncpa_passive.exe\"",
+    "path": "\"C:\\Program Files (x86)\\Nagios\\NCPA\\ncpa_passive.exe\""
     "start_mode": "delayed",
     "state": "running",
     "username": "LocalSystem"
