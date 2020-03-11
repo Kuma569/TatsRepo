@@ -14,7 +14,7 @@
         "method": "POST",
         "ret": "obj",
         "paytoqs": false,
-        "url": "https://login.microsoftonline.com/<Azure App Registoration (Directory)tenant ID>/oauth2/token",,
+        "url": "https://login.microsoftonline.com/<Azure App Registration (Directory)tenant ID>/oauth2/token",,
         "tls": "",
         "persist": false,
         "proxy": "",
@@ -32,7 +32,7 @@
         "type": "function",
         "z": "8b3e5654.1986d8",
         "name": "Create Request",
-		"func": "msg.payload = \"grant_type=client_credentials&client_id=<Azure App Registoration App (Client) ID>&client_secret=<getAuthTokenFlow - secret>&resource=https://<AzureStack domain>.onmicrosoft.com/<ID from Azure App ID URI>\";\nmsg.headers = {};\nmsg.headers['Content-Type'] = 'application/x-www-form-urlencoded';\n\nreturn msg;\n",
+		"func": "msg.payload = \"grant_type=client_credentials&client_id=<Azure App Registration App (Client) ID>&client_secret=<getAuthTokenFlow - secret>&resource=https://<AzureStack domain>.onmicrosoft.com/<ID from Azure App ID URI>\";\nmsg.headers = {};\nmsg.headers['Content-Type'] = 'application/x-www-form-urlencoded';\n\nreturn msg;\n",
         "outputs": 1,
         "noerr": 0,
         "x": 140,
@@ -243,23 +243,6 @@
         "x": 960,
         "y": 440,
         "wires": []
-    },
-    {
-        "id": "641f5787.5101e8",
-        "type": "function",
-        "z": "8b3e5654.1986d8",
-        "name": "getMinute",
-        "func": "//Stolen from https://stackoverflow.com/a/8016205/3470655\ndatestr = new Date(msg.payload).toString();\ndatestr = datestr.substring(0, datestr.lastIndexOf(\":\"));\nmsg.timeminute = datestr;\n//node.error(\"https://adminmanagement.<region>.<azure stack domain>/subscriptions/<subscription ID>/providers/Microsoft.Web.Admin/locations/<region>/metrics/?startTime={{{msg.timeminute}}}:00.000Z&endTime={{{msg.timeminute}}}:59.999Z&timeGrain=PT1M&api-version=2018-02-01\")\nreturn msg;",
-        "outputs": 1,
-        "noerr": 0,
-        "x": 300,
-        "y": 100,
-        "wires": [
-            [
-                "8c009644.ce74b8",
-                "c86fb57a.d43538"
-            ]
-        ]
     },
     {
         "id": "53887d59.e0c5f4",

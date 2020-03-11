@@ -1,35 +1,52 @@
 ## Background
 
-To have a flexibility creating a performance graph for tennant VMs, PasS Services (such as MS SQL, App services) or AzureStackHUB's health status. IOTStack (Grafana-InfluxDB-NodeRed) and Naigos XI integration has been setup.  
+To have a flexibility creating a performance graph for tennant VMs, PasS Services (such as MS SQL, App services) or AzureStackHUB's health status. IOTStack (Grafana-InfluxDB-NodeRed) has been setup.  
 
 This integration would also be more useful when a second AzureStackHUB is stood up. Using this solution, it can be easily presented both AzureStackHUB1 and 2's status into a one dashboard.  
   
 
 ### Integration Environment
 
-For Grafana, NodeRed and InfluxDB, we installed Portainer (Docker container management software) on AzureStackHUB's Linux VM, and imported those apps' container on it. It had been done by [IOTStack](https://github.com/gcgarner/IOTstack).  
+For graphing, we use containers for Grafana, NodeRed and InfluxDB and imported those apps' container on Portainer (Container Management software installed on Linux VM). It had been done by [IOTStack](https://github.com/gcgarner/IOTstack).
+
+For application authentication to the Azure Stack Hub, [Service Principals - SPN](https://docs.microsoft.com/en-us/azure-stack/operator/azure-stack-create-service-principals?view=azs-1910) have been used. All applications that will need to access Azure Stack Hub must be represented by a service principal. In this article, NodeRed is using SPN.
 
 
-#### Prerequisites
+### Prerequisites
 
 Two Linux VMs. In this article, they had been deployed on Azure Stack Hub. 
 
-- IOTStack - Portainer server
+- IOTStack - Portainer server (deployed by Azure Stack Hub ARM template)
   - hostname : iotstack.example.com
   - OS : Linux (Ubuntu 18.04)
   - Size : Standard DS2 v2 (2 vcpus, 7 GB memory, 32 GB OS Disk)  
   - Opened Inbound ports : 22, 80, 443, 1880(NodeRed), 3000(Grafana), 8086(InfluxDB) and 9000(Portainer)
 
-- Nagios XI server
-  - hostname : nagiosxi.example.com
-  - OS : Linux (Ubuntu 18.04)
-  - Size : Standard DS2 v2 (2 vcpus, 7 GB memory, 32 GB OS Disk)  
-  - Opened Inbound ports : 22, 80, 443, 5693(NCPA), 3000(Grafana)
-  - Nagios XI 5.6
-    - [Install PNP components](https://support.nagios.com/kb/article/nagios-xi-using-grafana-with-existing-performance-data-805.html) 
+- Azure Application Service Principal
+  Create SPN for NodeRed and Nagios XI through the public Azure (Azure stack has to be reachable). Each applications need the following IDs:
+  - Application (Client) ID
+  - Directory (tenant) ID
+  - Secret
+
+- Azure Stack Hub diagnostic info(*)
+  - External domain fqdn
+  - Region
+
+  (*) **Adminportal > Help > Show diagnostics**.
+
+- Azure stack API parameters
+  To retrieve Azure Stack Hub's information, [Azure Stack Admin API](https://docs.microsoft.com/en-us/rest/api/azure-stack/) will be used. Each APIs have own parameters. Check the parameters in this link and set it up accordingly.
 
 
-### IOTStack - Portainer Installation  
+### Solution Summary
+
+1 IOTStack - Portainer Installation
+2 NodeRed configuration
+3 Grafana configuration
+4 Creating Dashboard
+
+
+#### 1 IOTStack - Portainer Installation  
 
 Login to IOTStack's VM and run the followings.
 
@@ -72,6 +89,7 @@ Select **OK** to install. (Server will be rebooted.)
 
 After the reboot, check if **`docker-compose.yml`** has been created under the repo directory (azshub-monitorstack) and see if your selected containers are described within that yml file.  
 
+
 3: Install container  
 
 ```console
@@ -111,7 +129,7 @@ Setup admin URL:
 
 ```console  
 sudo node-red-admin target http://iotstack.example.com:1880/
-sudo node-red-admin hash-pw    #Enter admin's password and keep hashed strings in somewhere.
+sudo node-red-admin hash-pw    #Enter admin's password and keep hashed strings in somewhere safe.
 sudo node-red-admin login      #Enter user(admin) and password.
 ```  
 
@@ -141,7 +159,7 @@ Uncomment below lines:
 Recycle the container (you can do it through Potainer's Web Console) and login to the NodeRed web console to check.  
   
 
-### NodeRed configuration
+#### 2 NodeRed configuration
 
 1: Creating database for azshubmonitor
 
@@ -175,7 +193,32 @@ Copy those examples (json format), and login to the NodeRed:
 http://iotstack.example.com:1880/
 ```
 
-Navigate to **`Top right corner's three line icon`** > **`Import`**, and past the json strings, then click **Import** to save. 
+Navigate to **`Top right corner's three line icon`** > **`Import`**, and past the json strings. You need to change **url** and **func**  parameters in the Flow json. parameters can be found at this API reference:
+
+```url
+https://docs.microsoft.com/en-us/rest/api/azure-stack/
+```
+
+Also have SPN information. Usually Azure Stack Hub Admin can provide SPN info.
+
+
+Example of example-NodeRed-getAuthTokenFlow.json:
+
+```json
+.
+.
+"url": "https://login.microsoftonline.com/<SPN tenant ID>/oauth2/token",
+.
+.
+
+"func": "msg.payload = \"grant_type=client_credentials&client_id=<SPN Client ID>0&client_secret=<secret in SPN>&resource=https://adminmanagement.onmicrosoft.com/<subscription ID>";\nmsg.headers = {};\nmsg.headers['Content-Type'] = 'application/x-www-form-urlencoded';\n\nreturn msg;\n",
+.
+.
+```
+
+then click **Import** to save.
+
+Do the same thing for the other json template, too.
 
 
 3: Edit the flow's database settings
@@ -188,7 +231,7 @@ Navigate to **`Top right corner's three line icon`** > **`Import`**, and past th
 Click **Deploy** button (Top-right corner) to apply.  
   
   
-### Grafana configuration
+#### 3 Grafana configuration
 
 1: Login: 
 Login to Grafana's WebConsole (http://iotstack.example.com:3000/login).
@@ -207,13 +250,21 @@ In the **Data Sources / InfluxDB** page, enter followings:
 Click **"Save & Test"** button to save. You should see a success message.  
 
   
-### Import Dashboard
+#### 4 Creating Dashboard
 
 Now you can create your own dashboard in Grafana.
-Examples of dashboard:  
+
+On Grafana Web console
+1: On the left navigation men hover over the **'+'** icon and select **Create > Dashboard**.
+2: Click **Add Query** 
+3: An empty graph is added to the dashboard, this opens the editor interface for the panel. At the bottom is the Query editor, the "default" query is the **<your datasource>**.
+4: Set up graphs using metrics collected by NodeRed. 
+
+Examples:  
 
 ![App Service Overview](img/AppServicesOverview-Grafana.png)  
   
-![Azure Stack HUB Status Overview (with PNP4Nagios data source integration)](img/AzshStatusOverviewGraph.png)  
+![Azure Stack HUB Status Overview](img/AzshStatusOverviewGraph.png)  
+
 
 -- End
