@@ -32,7 +32,7 @@ For application authentication to the Azure Stack Hub, [Service Principals - SPN
 
   (*) **Adminportal > Help > Show diagnostics**.
 
-- Azure stack API parameters
+- Azure stack API parameters  
   To retrieve Azure Stack Hub's information, [Azure Stack Admin API](https://docs.microsoft.com/en-us/rest/api/azure-stack/) will be used. Each APIs have own parameters. Check the parameters in this link and set it up accordingly.
 
 
@@ -220,8 +220,6 @@ then click **Import** to save.
 
 Do the same thing for the other json template, too.
 
----
-
 3: Edit the flow's database settings
 
 - On the flow editor pane, double click on the **'save to Influxdb'** object in the flow.  
@@ -231,7 +229,7 @@ Do the same thing for the other json template, too.
     
 Click **Deploy** button (Top-right corner) to apply.  
 
-<br>  
+---  
   
 #### 3 Grafana configuration
 
