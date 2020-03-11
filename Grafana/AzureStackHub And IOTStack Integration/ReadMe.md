@@ -258,7 +258,7 @@ Now you can create your own dashboard in Grafana.
 On Grafana Web console
 1. On the left navigation men hover over the **'+'** icon and select **Create > Dashboard**.
 2. Click **Add Query** 
-3. An empty graph is added to the dashboard, this opens the editor interface for the panel. At the bottom is the Query editor, the "default" query is the **<your datasource>**.
+3. An empty graph is added to the dashboard, this opens the editor interface for the panel. At the bottom is the Query editor, the "default" query is the **your datasource** that had been created in hte previous steps.
 4. Set up graphs using metrics collected by NodeRed. 
 
 Examples:  
