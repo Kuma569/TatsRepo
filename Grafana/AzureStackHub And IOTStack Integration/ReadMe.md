@@ -14,9 +14,7 @@ For application authentication to the Azure Stack Hub, [Service Principals - SPN
 
 ### Prerequisites
 
-Two Linux VMs. In this article, they had been deployed on Azure Stack Hub. 
-
-- IOTStack - Portainer server (deployed by Azure Stack Hub ARM template)
+- IOTStack - Portainer server (Deployed by Azure Stack Hub ARM template)
   - hostname : iotstack.example.com
   - OS : Linux (Ubuntu 18.04)
   - Size : Standard DS2 v2 (2 vcpus, 7 GB memory, 32 GB OS Disk)  
@@ -40,11 +38,12 @@ Two Linux VMs. In this article, they had been deployed on Azure Stack Hub.
 
 ### Solution Summary
 
-1 IOTStack - Portainer Installation
-2 NodeRed configuration
-3 Grafana configuration
-4 Creating Dashboard
+1. IOTStack - Portainer Installation
+2. NodeRed configuration
+3. Grafana configuration
+4. Creating Dashboard
 
+---
 
 #### 1 IOTStack - Portainer Installation  
 
@@ -157,7 +156,8 @@ Uncomment below lines:
 **password** should be the hashed strings you got in the previous step.  
   
 Recycle the container (you can do it through Potainer's Web Console) and login to the NodeRed web console to check.  
-  
+
+---  
 
 #### 2 NodeRed configuration
 
@@ -220,6 +220,7 @@ then click **Import** to save.
 
 Do the same thing for the other json template, too.
 
+---
 
 3: Edit the flow's database settings
 
@@ -229,7 +230,8 @@ Do the same thing for the other json template, too.
 - For getAuthTokenFlow, you need to replace **`client_secret=<secret>`** in this flow. (Secret will be stored in safe place)  
     
 Click **Deploy** button (Top-right corner) to apply.  
-  
+
+<br>  
   
 #### 3 Grafana configuration
 
@@ -249,16 +251,17 @@ In the **Data Sources / InfluxDB** page, enter followings:
 
 Click **"Save & Test"** button to save. You should see a success message.  
 
+---
   
 #### 4 Creating Dashboard
 
 Now you can create your own dashboard in Grafana.
 
 On Grafana Web console
-1: On the left navigation men hover over the **'+'** icon and select **Create > Dashboard**.
-2: Click **Add Query** 
-3: An empty graph is added to the dashboard, this opens the editor interface for the panel. At the bottom is the Query editor, the "default" query is the **<your datasource>**.
-4: Set up graphs using metrics collected by NodeRed. 
+1. On the left navigation men hover over the **'+'** icon and select **Create > Dashboard**.
+2. Click **Add Query** 
+3. An empty graph is added to the dashboard, this opens the editor interface for the panel. At the bottom is the Query editor, the "default" query is the **<your datasource>**.
+4. Set up graphs using metrics collected by NodeRed. 
 
 Examples:  
 
