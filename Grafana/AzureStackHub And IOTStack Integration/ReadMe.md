@@ -20,7 +20,7 @@ For application authentication to the Azure Stack Hub, [Service Principals - SPN
   - Size : Standard DS2 v2 (2 vcpus, 7 GB memory, 32 GB OS Disk)  
   - Opened Inbound ports : 22, 80, 443, 1880(NodeRed), 3000(Grafana), 8086(InfluxDB) and 9000(Portainer)
 
-- Azure Application Service Principal
+- Azure Application Service Principal  
   Create SPN for NodeRed and Nagios XI through the public Azure (Azure stack has to be reachable). Each applications need the following IDs:
   - Application (Client) ID
   - Directory (tenant) ID
